@@ -1,3 +1,5 @@
+library(stringr)
+
 rankhospital <- function(state, outcome, num = "best"){
   
   ## Reading outcome data
@@ -11,6 +13,38 @@ rankhospital <- function(state, outcome, num = "best"){
   valid_outcome <- c("heart attack", "heart failure", "pneumonia")
   if(!(outcome %in% valid_outcome)){
     stop("invalid outcome")
+  }
+  
+  ## Selecting the state-wise subset of the data and removing rows with NA values
+  main_string <- gsub("\\s|\\(|\\-|\\)", ".", "Hospital 30-Day Death (Mortality) Rates from")
+  
+  outcome_formatted <- str_to_title(outcome) # Convert first letters of each word to uppercase in outcome
+  outcome_formatted <- gsub("\\s", ".",outcome_formatted)
+  
+  outcome_column <- paste(main_string, outcome_formatted, sep = ".")
+  
+  state_select <- subset(outcome_data, outcome_data$State == state)
+  state_select <- state_select[!is.na(state_select[, outcome_column]), ]
+  
+  rank_count <- nrow(state_select)
+  if (is.numeric(num)) {
+    if (num > rank_count){
+      return(NA)
+    }
+    else{
+      #dddddddddddddddddddddddddddd
+    }
+  }
+  else if (num == "best"){
+    best_hospital <- state_select[which.min(state_select[,outcome_column]), "Hospital.Name"]
+    return(best_hospital)
+  }
+  else if (num == "worst"){
+    worst_hospital <- state_select[which.max(state_select[,outcome_column]), "Hospital.Name"]
+    return(worst_hospital)
+  }
+  else {
+    return("Please Enter a Valid Ranking")
   }
   
   
